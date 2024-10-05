@@ -1,0 +1,72 @@
+/* Container */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+  font-family: Arial, sans-serif; /* Gaya font yang lebih modern */
+}
+
+/* Judul */
+h1 {
+  margin-bottom: 20px;
+  color: #6d4c41; /* Coklat tua */
+}
+
+/* Grup input */
+.input-group {
+  display: flex;
+  gap: 10px; /* Ruang antar input */
+  margin-bottom: 20px;
+}
+
+/* Tombol grup */
+.button-group {
+  display: flex;
+  gap: 10px; /* Ruang antar tombol */
+  margin-bottom: 20px;
+}
+
+/* Tombol */
+.button-group button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #8d6e63; /* Coklat medium */
+  color: white; /* Teks putih untuk kontras */
+  transition: background-color 0.3s ease; /* Efek transisi saat hover */
+}
+
+.button-group button:hover {
+  background-color: #6d4c41; /* Coklat tua saat hover */
+}
+
+/* Canvas */
+.canvas {
+  border: 2px solid #8d6e63; /* Border yang lebih tebal dan warna coklat medium */
+  margin-bottom: 20px;
+}
+
+/* Tabel hasil */
+.result-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.result-table th,
+.result-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.result-table th {
+  background-color: #c7b9a7; /* Coklat muda */
+  color: #5d4037; /* Coklat tua untuk teks */
+}
+
+.result-table td {
+  background-color: #f5f5f5; /* Latar belakang tabel yang lebih terang */
+}
