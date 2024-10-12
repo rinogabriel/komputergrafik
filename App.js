@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css"; // Import file CSS untuk styling
 
-// Columns for each algorithm
 const columnsDasar = [
   { id: "x1", label: "X1" },
   { id: "dx", label: "dX" },
@@ -18,7 +17,13 @@ const columnsDDA = [
   { id: "xy", label: "Round(X), Round(Y)" },
 ];
 
-function App() {
+const columnsBresenham = [
+  { id: "k", label: "K" },
+  { id: "x", label: "X" },
+  { id: "y", label: "Y" },
+];
+
+const App = () => {
   const [x1Str, setX1] = useState("");
   const [y1Str, setY1] = useState("");
   const [x2Str, setX2] = useState("");
@@ -59,6 +64,10 @@ function App() {
       setColumns(columnsDDA);
       const results = generateDDA(x1, y1, x2, y2);
       setRows(results);
+    } else if (alignment === "bresenham") {
+      setColumns(columnsBresenham);
+      const results = generateBresenham(x1, y1, x2, y2);
+      setRows(results);
     }
   };
 
@@ -73,11 +82,11 @@ function App() {
     const newRows = [{ x1, dx: "", x2: x1, y1, m: "", y2: y1 }];
 
     if (x1 < x2) {
-      for (let i = x1, j = y1; i < x2; i++, j += m) {
+      for (let i = x1, j = y1; i <= x2; i++, j += m) { // Perhatikan batas i <= x2
         newRows.push({ x1: i, dx: 1, x2: i + 1, y1: j, m, y2: j + m });
       }
-    } else if (x1 > x2) {
-      for (let i = x1, j = y1; i > x2; i--, j -= m) {
+    } else {
+      for (let i = x1, j = y1; i >= x2; i--, j -= m) { // Perhatikan batas i >= x2
         newRows.push({ x1: i, dx: 1, x2: i - 1, y1: j, m, y2: j - m });
       }
     }
@@ -113,6 +122,31 @@ function App() {
     return newRows;
   };
 
+  const generateBresenham = (x1, y1, x2, y2) => {
+    const points = [];
+    const dx = Math.abs(x2 - x1);
+    const dy = Math.abs(y2 - y1);
+    const sx = (x1 < x2) ? 1 : -1;
+    const sy = (y1 < y2) ? 1 : -1;
+    let err = dx - dy;
+
+    while (true) {
+      points.push({ k: points.length, x: x1, y: y1 });
+      if (x1 === x2 && y1 === y2) break;
+      const err2 = err * 2;
+      if (err2 > -dy) {
+        err -= dy;
+        x1 += sx;
+      }
+      if (err2 < dx) {
+        err += dx;
+        y1 += sy;
+      }
+    }
+
+    return points;
+  };
+
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -143,9 +177,8 @@ function App() {
         maxY = -Infinity;
 
       rows.forEach((row) => {
-        const x = Math.round(row.x || row.x1);
-        const y = Math.round(row.y || row.y1);
-
+        const x = Math.round(row.x1 || row.x); 
+        const y = Math.round(row.y1 || row.y); 
         minX = Math.min(minX, x);
         maxX = Math.max(maxX, x);
         minY = Math.min(minY, y);
@@ -156,7 +189,7 @@ function App() {
       const canvasHeight = canvas.height;
       const scaleX = canvasWidth / (maxX - minX);
       const scaleY = canvasHeight / (maxY - minY);
-      const scale = Math.min(scaleX, scaleY) * 1.0; // Memperjelas grafik
+      const scale = Math.min(scaleX, scaleY) * 0.9; // Memperjelas grafik
 
       const centerX = (minX + maxX) / 2;
       const centerY = (minY + maxY) / 2;
@@ -202,8 +235,8 @@ function App() {
 
       let prevX, prevY;
       rows.forEach((row, index) => {
-        const x = Math.round(row.x || row.x1);
-        const y = Math.round(row.y || row.y1);
+        const x = Math.round(row.x1 || row.x); 
+        const y = Math.round(row.y1 || row.y); 
 
         if (index > 0) {
           ctx.beginPath();
@@ -216,7 +249,7 @@ function App() {
         prevY = y;
 
         ctx.beginPath();
-        ctx.arc(x, y, 4 / scale, 0, Math.PI * 2, true);
+        ctx.arc(x, y, 4 / scale, 0, Math.PI * 2);
         ctx.fillStyle = "red";
         ctx.fill();
       });
@@ -224,55 +257,73 @@ function App() {
       ctx.restore();
     };
 
-    if (rows.length > 0) {
-      drawLines(rows);
-    }
+    drawLines(rows);
   }, [rows]);
 
   return (
-    <div className="container">
-      <h1>Algorithm Line Drawing</h1>
-
-      <div className="input-group">
+    <div className="App">
+      <h1>Line Algorithm Generator</h1>
+      <div className="input-container">
         <input
-          type="number"
-          placeholder="X1"
+          type="number" 
           value={x1Str}
           onChange={(e) => setX1(e.target.value)}
+          placeholder="X1"
         />
         <input
-          type="number"
-          placeholder="Y1"
+          type="number" 
           value={y1Str}
           onChange={(e) => setY1(e.target.value)}
+          placeholder="Y1"
         />
         <input
-          type="number"
-          placeholder="X2"
+          type="number" 
           value={x2Str}
           onChange={(e) => setX2(e.target.value)}
+          placeholder="X2"
         />
         <input
-          type="number"
-          placeholder="Y2"
+          type="number" 
           value={y2Str}
           onChange={(e) => setY2(e.target.value)}
+          placeholder="Y2"
         />
       </div>
-
-    
-<div className="button-group">
-    <button onClick={handleGenerate}>Generate</button>
-    <button onClick={() => handleAlignment("dda")}>DDA</button>
-    <button onClick={() => handleAlignment("dasar")}>Dasar</button>
-    <button onClick={handleClear}>Clear</button>
-</div>
-
-
-
-      <canvas ref={canvasRef} width={800} height={600} className="canvas" />
-
-      <table className="result-table">
+      <div className="button-container">
+        <button onClick={handleGenerate}>Generate</button>
+        <button onClick={handleClear}>Clear</button>
+      </div>
+      <div className="radio-container">
+        <label>
+          <input
+            type="radio"
+            value="dasar"
+            checked={alignment === "dasar"}
+            onChange={() => handleAlignment("dasar")}
+          />
+          Dasar
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="dda"
+            checked={alignment === "dda"}
+            onChange={() => handleAlignment("dda")}
+          />
+          DDA
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="bresenham"
+            checked={alignment === "bresenham"}
+            onChange={() => handleAlignment("bresenham")}
+          />
+          Bresenham
+        </label>
+      </div>
+      <canvas ref={canvasRef} width={600} height={400} className="canvas" />
+      <table className="results-table">
         <thead>
           <tr>
             {columns.map((column) => (
@@ -284,7 +335,7 @@ function App() {
           {rows.map((row, index) => (
             <tr key={index}>
               {columns.map((column) => (
-                <td key={column.id}>{row[column.id] !== undefined ? row[column.id] : ""}</td>
+                <td key={column.id}>{row[column.id]}</td>
               ))}
             </tr>
           ))}
@@ -292,6 +343,6 @@ function App() {
       </table>
     </div>
   );
-}
+};
 
 export default App;
